@@ -66,20 +66,20 @@ def collapse(node, first_call: bool = False):
     collapse(result)
 
 
-start = NumberNode(
-        1,
-        OperationNode(
-            lambda x, y: x + y,
-            NumberNode(
-                1,
-                OperationNode(
-                    lambda x, y: x / y,
-                    UnaryOperationNode(lambda x: x**2, NumberNode(2, None)),
-                ),
-            ),
-        ),
-        True
-    )
+# start = NumberNode(
+#         1,
+#         OperationNode(
+#             lambda x, y: x + y,
+#             NumberNode(
+#                 1,
+#                 OperationNode(
+#                     lambda x, y: x / y,
+#                     UnaryOperationNode(lambda x: x**2, NumberNode(2, None)),
+#                 ),
+#             ),
+#         ),
+#         True
+#     )
     
 
-collapse(start, True)
+# collapse(start, True)

@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import Callable, Optional
-
-
+import utils.common_funcs as common_funcs
+from utils import OPERATION_PRIORITIES
+from copy import deepcopy
 class Node:
     def __init__(self, value, child, convert_to_latex: Callable[[Node], LatexNode]) -> None:
         self.value = value
@@ -24,7 +25,7 @@ class NumberNode(Node):
 
 class VariableNode(Node):
     def __init__(self, value: str) -> None:
-        super().__init__(value, None, lambda: value)
+        super().__init__(value, None, lambda x: LatexNode(value))
 
 
 class OperationNode(Node):
@@ -48,6 +49,12 @@ class UnaryOperationNode(Node):
         super().__init__(value, child, convert_to_latex)  # type: ignore
         self.child.parent = self
 
+class MultiplicationNode(OperationNode):
+    def __init__(self, child):
+        super().__init__(common_funcs.multiply, child, mul_to_latex, OPERATION_PRIORITIES.Multiplication.value)
+class AdditionNode(OperationNode):
+    def __init__(self, child):
+        super().__init__(common_funcs.add, child, add_to_latex, OPERATION_PRIORITIES.Addition.value)
 
 def print_tree(node, indent="", is_last=True):
     """Pretty-print the AST as a tree."""
@@ -125,7 +132,7 @@ class TreeCollapser:
                 return self.collapse(node.child[0], node)
             if not isinstance(node.child[1], NumberNode):
                 return self.collapse(node.child[1], node)
-            result = NumberNode(node.value(node.child[0].value, node.child[1].value), num_to_latex)
+            result = NumberNode(node.value(node.child[0].value, node.child[1].value))
             print(result)
             
             if previous_level is None:
@@ -158,7 +165,6 @@ class TreeCollapser:
             return node
 
 
-
 def num_to_latex(node):
     return LatexNode(str(node.value))
 
@@ -169,11 +175,6 @@ def add_to_latex(node):
 
 def mul_to_latex(node: OperationNode):
     latex = ""
-    for element in node.child:
-        if not isinstance(e, VariableNode) or not isinstance(e, NumberNode):
-            break
-    else:
-        latex = f"{[child for child in node.child if isinstance(child, NumberNode )][0]}{[child for child in node.child if isinstance(child, VariableNode )][0]}"
     return LatexNode(f"{node.child[0].value} \\cdot {node.child[1].value}")
 
 
@@ -188,5 +189,4 @@ def sub_to_latex(node):
 def sqrt_to_latex(node):
     return LatexNode(f"\\sqrt{{{node.child.value}}}")
 
-def add(x,y):
-    return x+y
+TREECOLLAPSER = TreeCollapser()
