@@ -52,6 +52,10 @@ class UnaryOperationNode(Node):
 class MultiplicationNode(OperationNode):
     def __init__(self, child):
         super().__init__(common_funcs.multiply, child, mul_to_latex, OPERATION_PRIORITIES.Multiplication.value)
+
+class DivisionNode(OperationNode):
+    def __init__(self, child):
+        super().__init__(common_funcs.divide, child, div_to_latex, OPERATION_PRIORITIES.Multiplication.value)
 class AdditionNode(OperationNode):
     def __init__(self, child):
         super().__init__(common_funcs.add, child, add_to_latex, OPERATION_PRIORITIES.Addition.value)
@@ -177,6 +181,8 @@ def mul_to_latex(node: OperationNode):
     latex = ""
     return LatexNode(f"{node.child[0].value} \\cdot {node.child[1].value}")
 
+def div_to_latex(node: OperationNode):
+    return LatexNode(f"\\frac{{{node.child[0].value}}}{{{node.child[1].value}}}")
 
 def pow_to_latex(node):
     return LatexNode(f"{node.child[0].value}^{{{node.child[1].value}}}")
