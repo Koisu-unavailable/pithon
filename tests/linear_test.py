@@ -1,6 +1,6 @@
 from fractions import Fraction
 
-from pithon.algebra import AlgebraGen
+from pithon.algebra import AlgebraGen, QuadraticForm
 from pithon.number import FractionFactory, IntegerFactory
 
 
@@ -52,3 +52,6 @@ def test_fractional_linear_generation_is_mathematically_sound():
     assert problem["answer"] == solution
     assert problem["equation"] == r"\left(\frac{2}{3}\right) \cdot x + \frac{3}{4} = \frac{13}{12}"
     assert expected_rhs == Fraction(13, 12)
+
+
+

@@ -1,9 +1,19 @@
+from enum import Enum
+from fractions import Fraction
+
 import utils.tree
-import utils.common_funcs as common_funcs
 import pithon.ProblemGenerator as ProbGen
 from copy import deepcopy
 
 from pithon.number import FractionFactory, IntegerFactory
+
+
+class QuadraticForm(Enum):
+    PURE_SQUARE = "pure_square"
+    SQUARE_PLUS_CONSTANT = "square_plus_constant"
+    SQUARE_PLUS_LINEAR = "square_plus_linear"
+    GENERAL = "general"
+    FACTORED = "factored"
 
 
 class AlgebraGen(ProbGen.ProblemGenerator):
@@ -18,6 +28,81 @@ class AlgebraGen(ProbGen.ProblemGenerator):
             utils.tree.NumberNode(numerator),
             utils.tree.NumberNode(denominator),
         ])
+
+    @staticmethod
+    def _format_number(value: int | Fraction) -> str:
+        if isinstance(value, Fraction):
+            if value.denominator == 1:
+                return str(value.numerator)
+            return rf"\left(\frac{{{value.numerator}}}{{{value.denominator}}}\right)"
+        return str(value)
+
+    @staticmethod
+    def _create_number(factory: IntegerFactory | FractionFactory) -> int | Fraction:
+        value = factory.create()
+        if isinstance(value, Fraction):
+            return value
+        return value
+
+    @staticmethod
+    def _format_factored_term(value: int | Fraction) -> str:
+        formatted = AlgebraGen._format_number(value)
+        if value >= 0:
+            return f" + {formatted}"
+        return f" - {abs(value) if isinstance(value, int) else abs(value.numerator) if value.denominator == 1 else AlgebraGen._format_number(abs(value))}"
+
+    def gen_quadratic(
+        self,
+        form: QuadraticForm,
+        solution_factory: IntegerFactory | FractionFactory,
+        factory_map: dict[str, IntegerFactory | FractionFactory],
+    ):
+        """Generate a quadratic equation where the answer is constructed from the chosen solution."""
+        solution = self._create_number(solution_factory)
+
+        if form == QuadraticForm.PURE_SQUARE:
+            rhs = solution**2
+            return {
+                "equation": rf"x^2 = {self._format_number(rhs)}",
+                "answer": solution,
+            }
+
+        if form == QuadraticForm.SQUARE_PLUS_CONSTANT:
+            k = self._create_number(factory_map["k"])
+            rhs = solution**2 + k
+            return {
+                "equation": rf"x^2 + {self._format_number(k)} = {self._format_number(rhs)}",
+                "answer": solution,
+            }
+
+        if form == QuadraticForm.SQUARE_PLUS_LINEAR:
+            b = self._create_number(factory_map["b"])
+            rhs = solution**2 + b * solution
+            return {
+                "equation": rf"x^2 + {self._format_number(b)}x = {self._format_number(rhs)}",
+                "answer": solution,
+            }
+
+        if form == QuadraticForm.GENERAL:
+            a = self._create_number(factory_map["a"])
+            b = self._create_number(factory_map["b"])
+            c = self._create_number(factory_map["c"])
+            rhs = a * solution**2 + b * solution + c
+            return {
+                "equation": rf"{self._format_number(a)}x^2 + {self._format_number(b)}x + {self._format_number(c)} = {self._format_number(rhs)}",
+                "answer": solution,
+            }
+
+        if form == QuadraticForm.FACTORED:
+            h = self._create_number(factory_map["h"])
+            k = self._create_number(factory_map["k"])
+            rhs = (solution + h) * (solution + k)
+            return {
+                "equation": rf"\left(x{self._format_factored_term(h)}\right)\left(x{self._format_factored_term(k)}\right) = {self._format_number(rhs)}",
+                "answer": solution,
+            }
+
+        raise ValueError(f"Unsupported quadratic form: {form}")
 
     def generate_problem(self):
         """Returns the path to an image of the generated problem"""
