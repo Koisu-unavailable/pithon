@@ -1,12 +1,12 @@
-import uuid
 from enum import Enum
 import matplotlib.pyplot as plt
 import io
 
+
 def render_latex(latex_string):
     line_height_in = 20 / 72  # convert points to inches
 
-    fig = plt.figure(figsize=(2.0, line_height_in + 1), dpi=300)
+    plt.figure(figsize=(2.0, line_height_in + 1), dpi=300)
     plt.rcParams["text.usetex"] = True
     plt.text(0.5, 0.5, f"${latex_string}$", fontsize=20, ha="center", va="center")
     plt.axis("off")
